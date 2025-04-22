@@ -1,0 +1,16 @@
+name: Dummy CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test-success:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dummy Test Step
+        run: echo "🎉 CI pipeline ran successfully!"

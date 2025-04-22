@@ -1,0 +1,22 @@
+{
+    "central-db": {
+        "url": "http://192.168.32.167:31670",
+        "title": "central-db"
+    },
+    "jazz": {
+        "url": "http://192.168.32.167:31671",
+        "title": "jazz"
+    },
+    "ufone": {
+        "url": "http://192.168.32.167:31672",
+        "title": "ufone"
+    },
+    "zong": {
+        "url": "http://192.168.32.167:31673",
+        "title": "zong"
+    },
+    "sco": {
+        "url": "http://192.168.32.167:31674",
+        "title": "sco"
+    }
+}
