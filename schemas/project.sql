@@ -19,3 +19,12 @@ CREATE TABLE IF NOT EXISTS bookings (
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+INSERT INTO products (name, price)
+VALUES 
+    ('Wireless Mouse', 29.99),
+    ('Mechanical Keyboard', 79.99),
+    ('USB-C Hub', 49.99),
+    ('27" 4K Monitor', 299.99),
+    ('Bluetooth Headphones', 89.99)
+ON CONFLICT DO NOTHING;

@@ -20,9 +20,10 @@ router.post("/reserve", authenticate(), async (req, res, next) => {
                   schema: {
                       type: 'object',
                       properties: {
-                          productId: { type: 'string' }
+                          productId: { type: 'string' },
+                          userId: { type: 'string' }
                       },
-                      required: ['productId']
+                      required: ['productId', 'userId']
                   }
               }
           }
@@ -34,12 +35,11 @@ router.post("/reserve", authenticate(), async (req, res, next) => {
     */
 
     logger.info({
-        user: req.user,
         body: req.body,
         method: "POST /booking/reserve"
     });
 
-    const result = await bookingController.reserve(req.body, req.user);
+    const result = await bookingController.reserve(req.body);
     return res.status(result.statusCode).json(result);
 });
 
@@ -60,9 +60,10 @@ router.post("/pay", authenticate(), async (req, res, next) => {
                       type: 'object',
                       properties: {
                           bookingId: { type: 'string' },
-                          sessionId: { type: 'string' }
+                          sessionId: { type: 'string' },
+                          userId: { type: 'string' },
                       },
-                      required: ['bookingId', 'sessionId']
+                      required: ['bookingId', 'sessionId', 'userId']
                   }
               }
           }
@@ -79,7 +80,7 @@ router.post("/pay", authenticate(), async (req, res, next) => {
         method: "POST /booking/pay"
     });
 
-    const result = await bookingController.pay(req.body, req.user);
+    const result = await bookingController.pay(req.body);
     return res.status(result.statusCode).json(result);
 });
 

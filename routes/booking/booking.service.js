@@ -4,12 +4,15 @@ const { v4: uuidv4 } = require("uuid");
 const { lockProduct, unlockProduct, getLockOwner } = require("../../services/productLock.service");
 const log = require("../../logger");
 const { Bookings, Products } = require("../../models");
+const { transaction } = require('objection');
+const { simulatePayment } = require("../../services/payment.service");
+const { withTimeout } = require("../../utility/index");
 
 class BookingService {
-    async reserveProduct(productId, user) {
+    async reserveProduct(productId, userId) {
         const sessionId = uuidv4();
         const lockKey = `lock:product:${productId}`;
-        const lockTTL = 60;
+        const lockTTL = 200;
 
         const locked = await lockProduct(lockKey, sessionId, lockTTL);
         if (!locked) {
@@ -31,7 +34,7 @@ class BookingService {
             id: bookingId,
             productId,
             sessionId,
-            userId: user.id,
+            userId: userId,
             status: "PENDING"
         });
 
@@ -39,7 +42,7 @@ class BookingService {
             productId,
             sessionId,
             bookingId,
-            userId: user.id
+            userId
         }, "Reserved product with pending booking");
 
         return {
@@ -50,27 +53,30 @@ class BookingService {
         };
     }
 
-    async confirmPayment(bookingId, sessionId, user) {
+    async confirmPayment(bookingId, sessionId, userId) {
         const booking = await Bookings.query()
             .findById(bookingId)
-            .where("userId", user.id);
-
+            .where('userId', userId);
+            
         if (!booking) throw new ErrorData("Booking not found", { statusCode: 404 });
         if (booking.status !== "PENDING") throw new ErrorData("Booking already processed", { statusCode: 400 });
         if (booking.sessionId !== sessionId) throw new ErrorData("Invalid session for this booking", { statusCode: 400 });
 
         const lockKey = `lock:product:${booking.productId}`;
-        const lockOwner = getLockOwner(lockKey);
-
+        const lockOwner = await getLockOwner(lockKey);
+        
         if (lockOwner !== sessionId) {
             throw new ErrorData("Lock expired or session mismatch", { statusCode: 400 });
         }
 
-        // Mock payment logic (simulate success)
-        const paymentSuccess = true;
+        const paymentSuccess = await withTimeout(
+            simulatePayment(),
+            5000,
+            "Payment module did not respond in time"
+          );
 
         if (paymentSuccess) {
-            await Bookings.startTransaction(async trx => {
+            await transaction(Bookings.knex(), async trx => {
                 await Bookings.query(trx)
                     .patch({
                         status: "CONFIRMED",

@@ -6,7 +6,8 @@ class BookingController {
     async reserve(payload, user) {
         try {
             const schema = Joi.object({
-                productId: Joi.string().required().trim()
+                productId: Joi.string().uuid().required().trim(),
+                userId: Joi.string().uuid().required().trim()
             });
 
             const { error } = schema.validate(payload);
@@ -24,7 +25,7 @@ class BookingController {
                 };
             }
 
-            const result = await bookingService.reserveProduct(payload.productId, user);
+            const result = await bookingService.reserveProduct(payload.productId, payload.userId);
 
             log.info({
                 message: "Product reserved successfully",
@@ -59,7 +60,8 @@ class BookingController {
         try {
             const schema = Joi.object({
                 bookingId: Joi.string().required().trim(),
-                sessionId: Joi.string().required().trim()
+                sessionId: Joi.string().required().trim(),
+                userId: Joi.string().uuid().required().trim()
             });
 
             const { error } = schema.validate(payload);
@@ -77,7 +79,7 @@ class BookingController {
                 };
             }
 
-            const result = await bookingService.confirmPayment(payload.bookingId, payload.sessionId, user);
+            const result = await bookingService.confirmPayment(payload.bookingId, payload.sessionId, payload.userId);
 
             log.info({
                 message: "Mock payment confirmed & booking finalized",

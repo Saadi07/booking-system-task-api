@@ -47,10 +47,14 @@
                 "properties": {
                   "productId": {
                     "type": "string"
+                  },
+                  "userId": {
+                    "type": "string"
                   }
                 },
                 "required": [
-                  "productId"
+                  "productId",
+                  "userId"
                 ]
               }
             }
@@ -91,11 +95,15 @@
                   },
                   "sessionId": {
                     "type": "string"
+                  },
+                  "userId": {
+                    "type": "string"
                   }
                 },
                 "required": [
                   "bookingId",
-                  "sessionId"
+                  "sessionId",
+                  "userId"
                 ]
               }
             }
