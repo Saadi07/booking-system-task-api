@@ -4,7 +4,7 @@ const { v4: uuidv4 } = require("uuid");
 const { lockProduct, unlockProduct, getLockOwner } = require("../../services/productLock.service");
 const log = require("../../logger");
 const { Bookings, Products } = require("../../models");
-const { transaction } = require('objection');
+const { transaction } = require("objection");
 const { simulatePayment } = require("../../services/payment.service");
 const { withTimeout } = require("../../utility/index");
 
@@ -34,7 +34,7 @@ class BookingService {
             id: bookingId,
             productId,
             sessionId,
-            userId: userId,
+            userId,
             status: "PENDING"
         });
 
@@ -56,15 +56,15 @@ class BookingService {
     async confirmPayment(bookingId, sessionId, userId) {
         const booking = await Bookings.query()
             .findById(bookingId)
-            .where('userId', userId);
-            
+            .where("userId", userId);
+
         if (!booking) throw new ErrorData("Booking not found", { statusCode: 404 });
         if (booking.status !== "PENDING") throw new ErrorData("Booking already processed", { statusCode: 400 });
         if (booking.sessionId !== sessionId) throw new ErrorData("Invalid session for this booking", { statusCode: 400 });
 
         const lockKey = `lock:product:${booking.productId}`;
         const lockOwner = await getLockOwner(lockKey);
-        
+
         if (lockOwner !== sessionId) {
             throw new ErrorData("Lock expired or session mismatch", { statusCode: 400 });
         }
@@ -73,7 +73,7 @@ class BookingService {
             simulatePayment(),
             5000,
             "Payment module did not respond in time"
-          );
+        );
 
         if (paymentSuccess) {
             await transaction(Bookings.knex(), async trx => {
